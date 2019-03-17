@@ -7,7 +7,9 @@ I created a parser for two of them that I found most useful:
 - Samuel Fallows of synonyms and antonyms dictionary located [here](http://www.gutenberg.org/files/51155/51155-0.txt)
 - Richard Soule dictionary of synonyms located [here](http://www.gutenberg.org/files/38390/38390-h/38390-h.htm) 
 
-In the `resources` foldr you will find the raw dictionary files as well as the output of my parser (my output is in _json_ format.)
+Combined both dictionaries provide entries for over 21k vocabulary words.
+
+In the `resources` folder you will find the raw dictionary files as well as the output of my parser (my output is in _json_ format.)
 In the `src` folder you will find both parsers along with sample usage.
 In `src/dict_usage.py` I show how to combine both dictionaries and use them to lookup synonyms and antonyms.
 
