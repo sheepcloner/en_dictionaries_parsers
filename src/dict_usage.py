@@ -52,5 +52,5 @@ fallows_dict = json.load(open(fallows_dict_file, "r"))
 
 combined_dicts = combine_dictionaries(soule_dict, fallows_dict)
 
-vocab_word = "surprise"
+vocab_word = "lively"
 get_word_dict_entry(vocab_word, soule_dict, fallows_dict, combined_dicts)
