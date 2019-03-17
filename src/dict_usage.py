@@ -33,15 +33,24 @@ def combine_dictionaries(soule_dict, fallows_dict):
 
     return combined_dict
 
+def get_word_dict_entry(vocab_word, soule_dict, fallows_dict, combined_dicts):
+    if vocab_word in soule_dict:
+        print("From Soule dictionary:\n", soule_dict[vocab_word])
+
+    if vocab_word in fallows_dict:
+        print("From Fallows dictionary:\n", fallows_dict[vocab_word])
+
+    if vocab_word in combined_dicts:
+        print("From Fallows & Soule dictionaries:\n", combined_dicts[vocab_word])
+
+
 soule_dict_file = '../resources/soule_dict.json'
 soule_dict = json.load(open(soule_dict_file, "r"))
-
-print(soule_dict["surprise"])
 
 fallows_dict_file = '../resources/fallows_dict.json'
 fallows_dict = json.load(open(fallows_dict_file, "r"))
 
-print(fallows_dict["surprise"])
-
 combined_dicts = combine_dictionaries(soule_dict, fallows_dict)
-print(combined_dicts["surprise"])
+
+vocab_word = "surprise"
+get_word_dict_entry(vocab_word, soule_dict, fallows_dict, combined_dicts)

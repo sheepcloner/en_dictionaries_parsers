@@ -5,6 +5,7 @@ Parse RICHARD SOULE dictionary of synonyms located here: http://www.gutenberg.or
 '''
 
 import re
+from pprint import pprint
 import json
 from bs4 import BeautifulSoup
 from bs4.element import NavigableString
@@ -37,69 +38,77 @@ def get_word_tokens(raw_synonyms_string):
     
     return synonyms
 
-soule_dict_file = open(dict_file_name, "r")
-soule_dict_html = soule_dict_file.read() #read the html file as a big string
-soule_dict_file.close()
+#generates a dictionary based on parsing SOULE dictionary pattern. Returns dictionary where vocabulary word is the key
+def generate_dictionary(dict_file_name):
+    soule_dict_file = open(dict_file_name, "r")
+    soule_dict_html = soule_dict_file.read() #read the html file as a big string
+    soule_dict_file.close()
 
-soule_dict = dict()
-soule_soup = BeautifulSoup(soule_dict_html, "html.parser")
-dict_html_entries = soule_soup.select("dl")
-i =-1
-j=-1
-for dict_entry in dict_html_entries: #provides the chapters in the dictionary (one chapter per letter)
-    i = i+1
+    soule_dict = dict()
+    soule_soup = BeautifulSoup(soule_dict_html, "html.parser")
+    dict_html_entries = soule_soup.select("dl")
+    i =-1
     j=-1
-    previous_word = ''
-    for entry_item in dict_entry.contents:
-        j=j+1
-        if DEBUG: print("Index %s,%s" %(i,j))
-        #entry_item = dict_entry.contents[index] #this will either be a <dt> or <dd> element
-        
-        if type(entry_item) == NavigableString: #Not going to process string type children, move on to the next iteration
-            continue
-        
-        synonyms = []
-        antonyms = []
-        
-        if DEBUG: print("Processing: ", entry_item)
-        
-        if entry_item.name == 'dt': #this is a new word entry
-            word = entry_item.b #the first bold entry in <dt> is the word itself
-            word = word.extract().text.lower() #extract removes the item so all I am left with is text
-            
-            pos = entry_item.i
-            if pos:
-                pos = pos.extract().text #first italic tag is parts of speech
-            
-            raw_synonyms = entry_item.text
-            
-            #cleanup the synonyms string by removing parenthetical content and leftover parenthesis
-            synonyms = get_word_tokens(raw_synonyms)
-            
-            if word in soule_dict: #word already exists
-                soule_dict[word]["synonyms"].extend(synonyms)
-                soule_dict[word]["synonyms"] = sorted(list(set(soule_dict[word]["synonyms"]))) #sorting is not always desired
-            else:
-                soule_dict[word] = dict()
-                soule_dict[word]["synonyms"] = sorted(synonyms)
-            
-            previous_word = word
-                
-        elif entry_item.name == 'dd': #more synonyms for previous word
-            if not previous_word:
-                print("***********This is not supposed to happen: Previous word is blank and a <dd> was encountered")
+    for dict_entry in dict_html_entries: #provides the chapters in the dictionary (one chapter per letter)
+        i = i+1
+        j=-1
+        previous_word = ''
+        for entry_item in dict_entry.contents:
+            j=j+1
+            if DEBUG: print("Index %s,%s" %(i,j))
+            #entry_item = dict_entry.contents[index] #this will either be a <dt> or <dd> element
+
+            if type(entry_item) == NavigableString: #Not going to process string type children, move on to the next iteration
                 continue
-            if previous_word in soule_dict: #word already exists
+
+            synonyms = []
+            antonyms = []
+
+            if DEBUG: print("Processing: ", entry_item)
+
+            if entry_item.name == 'dt': #this is a new word entry
+                word = entry_item.b #the first bold entry in <dt> is the word itself
+                word = word.extract().text.lower() #extract removes the item so all I am left with is text
+
+                pos = entry_item.i
+                if pos:
+                    pos = pos.extract().text #first italic tag is parts of speech
+
                 raw_synonyms = entry_item.text
-            
+
                 #cleanup the synonyms string by removing parenthetical content and leftover parenthesis
                 synonyms = get_word_tokens(raw_synonyms)
-                soule_dict[previous_word]["synonyms"].extend(synonyms)
-                soule_dict[previous_word]["synonyms"] = sorted(list(set(soule_dict[previous_word]["synonyms"])))
-       
-        if DEBUG: print(soule_dict[previous_word])
+
+                if word in soule_dict: #word already exists
+                    soule_dict[word]["synonyms"].extend(synonyms)
+                    soule_dict[word]["synonyms"] = sorted(list(set(soule_dict[word]["synonyms"]))) #sorting is not always desired
+                else:
+                    soule_dict[word] = dict()
+                    soule_dict[word]["synonyms"] = sorted(synonyms)
+
+                previous_word = word
+
+            elif entry_item.name == 'dd': #more synonyms for previous word
+                if not previous_word:
+                    print("***********This is not supposed to happen: Previous word is blank and a <dd> was encountered")
+                    continue
+                if previous_word in soule_dict: #word already exists
+                    raw_synonyms = entry_item.text
+
+                    #cleanup the synonyms string by removing parenthetical content and leftover parenthesis
+                    synonyms = get_word_tokens(raw_synonyms)
+                    soule_dict[previous_word]["synonyms"].extend(synonyms)
+                    soule_dict[previous_word]["synonyms"] = sorted(list(set(soule_dict[previous_word]["synonyms"])))
+
+    return soule_dict
 
 
-soule_dict_output_file = '../resources/soule_dict.json'
-with open(soule_dict_output_file, 'w') as outfile:
-    json.dump(soule_dict, outfile)
+
+#Store the dictionary to given file. Output will be json
+def store_dictionary(soule_dict, soule_dict_output_file):
+    with open(soule_dict_output_file, 'w') as outfile:
+        json.dump(soule_dict, outfile)
+
+soule_dict = generate_dictionary(dict_file_name)
+if DEBUG: pprint(soule_dict)
+store_dictionary(soule_dict, soule_dict_output_file)

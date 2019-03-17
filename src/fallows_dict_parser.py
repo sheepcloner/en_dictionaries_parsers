@@ -30,51 +30,60 @@ def parse_words(words_string):
             if DEBUG: print("skipping word: ", w)
     return parsed_words
 
-fallow_dict = dict()
-with open(dict_file_name, "r") as dict_file:
-    dict_block = ""
-    for line in dict_file:
-        line = line.strip()
-        if line.startswith("="): #reached the end of a definition block, need to back trace
-            dict_block_list = dict_block.split(".\n")
-            if len(dict_block_list) < 3:
-                if DEBUG: print("Skipping dictionary block because of incorrect number of lines, expected minimum 3, found %s: "%len(dict_block_list), dict_block_list)
-            else:
-                #parse the dictionary block
-                keyword = ""
-                synonyms = []
-                antonyms = []
-
-                if DEBUG: print("*******", dict_block_list)
-                m = keyword_pattern.match(dict_block_list[0])
-                if m and m.group(1):
-                    keyword = m.group(1)
-                    keyword = keyword.lower()
+#generates a dictionary based on parsing FALLOWS dictionary pattern. Returns dictionary where vocabulary word is the key
+def generate_dictionary(dict_file_name):
+    fallows_dict = dict()
+    with open(dict_file_name, "r") as dict_file:
+        dict_block = ""
+        for line in dict_file:
+            line = line.strip()
+            if line.startswith("="): #reached the end of a definition block, need to back trace
+                dict_block_list = dict_block.split(".\n")
+                if len(dict_block_list) < 3:
+                    if DEBUG: print("Skipping dictionary block because of incorrect number of lines, expected minimum 3, found %s: "%len(dict_block_list), dict_block_list)
                 else:
-                    if DEBUG: print("Skipping dictionary block because of malformed KEY: ", dict_block_list)
-                    dict_block = "" #prepare for next dictionary block
-                    continue
-                
-                #synonyms and antonyms could swap places easily so need to check for them in remaining entries
-                if dict_block_list[1].startswith("SYN: "):
-                    synonyms = parse_words(dict_block_list[1].replace("SYN: ", ""))
-                if dict_block_list[1].startswith("ANT: "):
-                    antonyms = parse_words(dict_block_list[1].replace("ANT: ", ""))
+                    #parse the dictionary block
+                    keyword = ""
+                    synonyms = []
+                    antonyms = []
+    
+                    if DEBUG: print("*******", dict_block_list)
+                    m = keyword_pattern.match(dict_block_list[0])
+                    if m and m.group(1):
+                        keyword = m.group(1)
+                        keyword = keyword.lower()
+                    else:
+                        if DEBUG: print("Skipping dictionary block because of malformed KEY: ", dict_block_list)
+                        dict_block = "" #prepare for next dictionary block
+                        continue
                     
-                if len(dict_block_list) > 2 and dict_block_list[2].startswith("SYN: "):
-                    synonyms = parse_words(dict_block_list[2].replace("SYN: ", ""))
-                if len(dict_block_list) > 2 and dict_block_list[2].startswith("ANT: "):
-                    antonyms = parse_words(dict_block_list[2].replace("ANT: ", ""))
-                 
-                fallow_dict[keyword] = {"synonyms": synonyms, "antonyms" : antonyms}
-                
-            dict_block = "" #prepare for next dictionary block
-        else:
-            dict_block = dict_block + line #still in the same dictionary block
-            if line.endswith("."):
-                dict_block = dict_block + "\n"
+                    #synonyms and antonyms could swap places easily so need to check for them in remaining entries
+                    if dict_block_list[1].startswith("SYN: "):
+                        synonyms = parse_words(dict_block_list[1].replace("SYN: ", ""))
+                    if dict_block_list[1].startswith("ANT: "):
+                        antonyms = parse_words(dict_block_list[1].replace("ANT: ", ""))
+                        
+                    if len(dict_block_list) > 2 and dict_block_list[2].startswith("SYN: "):
+                        synonyms = parse_words(dict_block_list[2].replace("SYN: ", ""))
+                    if len(dict_block_list) > 2 and dict_block_list[2].startswith("ANT: "):
+                        antonyms = parse_words(dict_block_list[2].replace("ANT: ", ""))
+                     
+                    fallows_dict[keyword] = {"synonyms": synonyms, "antonyms" : antonyms}
+                    
+                dict_block = "" #prepare for next dictionary block
+            else:
+                dict_block = dict_block + line #still in the same dictionary block
+                if line.endswith("."):
+                    dict_block = dict_block + "\n"
 
-if DEBUG: pprint(fallow_dict)
+    return fallows_dict
 
-with open(fallows_dict_output_file, 'w') as outfile:
-    json.dump(fallow_dict, outfile)
+#Store the dictionary to given file. Output will be json
+def store_dictionary(fallows_dict, fallows_dict_output_file):
+    with open(fallows_dict_output_file, 'w') as outfile:
+        json.dump(fallows_dict, outfile)
+    return
+
+fallows_dict = generate_dictionary(dict_file_name)
+if DEBUG: pprint(fallows_dict)
+store_dictionary(fallows_dict, fallows_dict_output_file)
