@@ -77,6 +77,6 @@ Below is a sample entry for the word `lively`:
 
 Refer to [dictionary usage code](src/dict_usage.py) for how to use these dictionaries.
 
-###Future items:
+### Future items:
 - Account for Part of speech (POS)
 - Create a graph that connects all the words together with synonyms and antonyms relationship
