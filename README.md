@@ -1,4 +1,4 @@
-#English Dictionaries Parsers
+# English Dictionaries Parsers
 
 Parsers for multiple english dictionaries to provider synonyms and antonyms per word
 
@@ -18,7 +18,7 @@ The dictionary structure:
 - Vocabulary words are the keys
 - The value is a dictionary that has an entry for _synonyms_ and another fo _antonyms_
 
-###Sample/usage:
+### Sample/usage:
 Below is a sample entry for the word `lively`:
 
 ```
