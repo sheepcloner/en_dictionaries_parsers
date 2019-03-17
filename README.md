@@ -1,4 +1,5 @@
-# en_dictionaries_parsers
+#English Dictionaries Parsers
+
 Parsers for multiple english dictionaries to provider synonyms and antonyms per word
 
 While working on Natural Language Processing (NLP) solutions, I ran into scarity of synonyms and antonyms resources out there.
@@ -17,6 +18,7 @@ The dictionary structure:
 - Vocabulary words are the keys
 - The value is a dictionary that has an entry for _synonyms_ and another fo _antonyms_
 
+###Sample/usage:
 Below is a sample entry for the word `lively`:
 
 ```
@@ -75,6 +77,6 @@ Below is a sample entry for the word `lively`:
 
 Refer to [dictionary usage code](src/dict_usage.py) for how to use these dictionaries.
 
-*Future items*:
+###Future items:
 - Account for Part of speech (POS)
 - Create a graph that connects all the words together with synonyms and antonyms relationship
